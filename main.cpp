@@ -22,8 +22,8 @@ using namespace CryptoPP;
 
 #pragma region helpers
 
-void delete_byte_array(const byte* array) {
-    delete[] array;
+void delete_byte_array(const byte* bytes) {
+    delete[] bytes;
 }
 
 #pragma endregion
@@ -139,7 +139,7 @@ void big_integer_mod_pow(const char* value_hex, const char* exponent_hex, const 
         exponent >>= 1;
     }
 
-    result.DEREncode(buffer);
+    result.Encode(buffer, result.ByteCount());
 
     *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
@@ -312,7 +312,7 @@ void rsa_no_padding_decrypt(const byte* input_bytes, const unsigned int input_si
     Integer decrypted = private_key.CalculateInverse(rng, Integer(input_bytes, input_size));
 
     buffer.Clear();
-    decrypted.DEREncode(buffer);
+    decrypted.Encode(buffer, decrypted.ByteCount());
 
     *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
@@ -331,7 +331,7 @@ void rsa_no_padding_encrypt(const byte* input_bytes, const unsigned int input_si
     Integer encrypted = public_key.ApplyFunction(Integer(input_bytes, input_size));
 
     buffer.Clear();
-    encrypted.DEREncode(buffer);
+    encrypted.Encode(buffer, encrypted.ByteCount());
 
     *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
