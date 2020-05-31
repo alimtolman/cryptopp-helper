@@ -1,6 +1,5 @@
-#define CRYPTOPP_EXPORT __declspec(dllexport)
-
 #pragma once
+#define CRYPTOPP_EXPORT __declspec(dllexport)
 
 #pragma region helpers
 
@@ -9,9 +8,9 @@
  *
  * @note byte array MUST be allocated in library
  * 
- * @param array - byte array
+ * @param bytes - byte array
  */
-extern "C" CRYPTOPP_EXPORT void delete_byte_array(const CryptoPP::byte* array);
+extern "C" CRYPTOPP_EXPORT void delete_byte_array(const CryptoPP::byte* bytes);
 
 #pragma endregion
 
@@ -135,7 +134,8 @@ extern "C" CRYPTOPP_EXPORT void big_integer_mod_pow(const char* value_hex, const
 /**
  * Generate public and private keys
  *
- * @note Caller MUST delete 'public_key_bytes' and 'private_key_bytes' with helper function 'delete_byte_array'
+ * @note Caller MUST delete 'private_key_bytes' with helper function 'delete_byte_array'
+ * @note Caller MUST delete 'public_key_bytes' with helper function 'delete_byte_array'
  *
  * @param p_hex - 'p' value in hex format (e.g. "0x01020304...")
  * @param g_hex - 'g' value in hex format (e.g. "0x01020304...")
