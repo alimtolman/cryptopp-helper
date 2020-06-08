@@ -229,14 +229,29 @@ void rsa_decrypt(const byte* input_bytes, const unsigned int input_size, const b
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<PKCS1v15>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+    
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -244,16 +259,29 @@ void rsa_encrypt(const byte* input_bytes, const unsigned int input_size, const b
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<PKCS1v15>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_export_public_key(const byte* private_key_bytes, const unsigned int private_key_size, byte** public_key_bytes, unsigned int* public_key_size) {
@@ -306,12 +334,11 @@ void rsa_no_padding_decrypt(const byte* input_bytes, const unsigned int input_si
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     Integer decrypted = private_key.CalculateInverse(rng, Integer(input_bytes, input_size));
 
-    buffer.Clear();
     decrypted.Encode(buffer, decrypted.ByteCount());
 
     *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
@@ -325,12 +352,11 @@ void rsa_no_padding_encrypt(const byte* input_bytes, const unsigned int input_si
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     Integer encrypted = public_key.ApplyFunction(Integer(input_bytes, input_size));
 
-    buffer.Clear();
     encrypted.Encode(buffer, encrypted.ByteCount());
 
     *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
@@ -344,14 +370,29 @@ void rsa_oaep_md2_decrypt(const byte* input_bytes, const unsigned int input_size
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<Weak::MD2>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_md2_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -359,16 +400,29 @@ void rsa_oaep_md2_encrypt(const byte* input_bytes, const unsigned int input_size
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<Weak::MD2>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_md4_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -376,14 +430,29 @@ void rsa_oaep_md4_decrypt(const byte* input_bytes, const unsigned int input_size
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<Weak::MD4>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_md4_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -391,16 +460,29 @@ void rsa_oaep_md4_encrypt(const byte* input_bytes, const unsigned int input_size
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<Weak::MD4>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_md5_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -408,14 +490,29 @@ void rsa_oaep_md5_decrypt(const byte* input_bytes, const unsigned int input_size
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<Weak::MD5>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_md5_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -423,16 +520,29 @@ void rsa_oaep_md5_encrypt(const byte* input_bytes, const unsigned int input_size
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<Weak::MD5>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha1_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -440,14 +550,29 @@ void rsa_oaep_sha1_decrypt(const byte* input_bytes, const unsigned int input_siz
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA1>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha1_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -455,16 +580,29 @@ void rsa_oaep_sha1_encrypt(const byte* input_bytes, const unsigned int input_siz
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA1>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha224_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -472,14 +610,29 @@ void rsa_oaep_sha224_decrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA224>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha224_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -487,16 +640,29 @@ void rsa_oaep_sha224_encrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA224>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha256_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -504,14 +670,29 @@ void rsa_oaep_sha256_decrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA256>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha256_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -519,16 +700,29 @@ void rsa_oaep_sha256_encrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA256>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha384_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -536,14 +730,29 @@ void rsa_oaep_sha384_decrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA384>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha384_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -551,16 +760,29 @@ void rsa_oaep_sha384_encrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA384>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha512_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -568,14 +790,29 @@ void rsa_oaep_sha512_decrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA512>>::Decryptor engine(private_key);
 
-    *output_bytes = new byte[engine.MaxPlaintextLength(input_size)];
-    *output_size = static_cast<unsigned int>(engine.Decrypt(rng, input_bytes, input_size, *output_bytes).messageLength);
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedCiphertextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.MaxPlaintextLength(input_length));
+        byte* output_block = new byte[output_length];
+        output_length = static_cast<unsigned int>(engine.Decrypt(rng, &input_bytes[i], input_length, output_block).messageLength);
+
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_oaep_sha512_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* public_key_bytes, const unsigned int public_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -583,16 +820,29 @@ void rsa_oaep_sha512_encrypt(const byte* input_bytes, const unsigned int input_s
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
+    buffer.Clear();
 
     AutoSeededRandomPool rng;
     RSAES<OAEP<SHA512>>::Encryptor engine(public_key);
 
-    *output_size = static_cast<unsigned int>(engine.CiphertextLength(input_size));
+    unsigned int block_size = static_cast<unsigned int>(engine.FixedMaxPlaintextLength());
+
+    for (unsigned int i = 0; i < input_size; i += block_size) {
+        unsigned int input_length = i + block_size > input_size ? input_size - i : block_size;
+        unsigned int output_length = static_cast<unsigned int>(engine.CiphertextLength(input_length));
+        byte* output_block = new byte[output_length];
+
+        engine.Encrypt(rng, &input_bytes[i], input_length, output_block);
+        buffer.Put(output_block, output_length);
+
+        delete[] output_block;
+    }
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
     *output_bytes = new byte[*output_size];
 
-    engine.Encrypt(rng, input_bytes, input_size, *output_bytes);
+    buffer.Get(*output_bytes, *output_size);
 }
 
 void rsa_pss_md2_sign(const byte* input_bytes, const unsigned int input_size, const byte* private_key_bytes, const unsigned int private_key_size, byte** output_bytes, unsigned int* output_size) {
@@ -600,7 +850,6 @@ void rsa_pss_md2_sign(const byte* input_bytes, const unsigned int input_size, co
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -615,7 +864,6 @@ void rsa_pss_md2_verify(const byte* input_bytes, const unsigned int input_size, 
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, Weak::MD2>::Verifier verifier(public_key);
@@ -628,7 +876,6 @@ void rsa_pss_md5_sign(const byte* input_bytes, const unsigned int input_size, co
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -643,7 +890,6 @@ void rsa_pss_md5_verify(const byte* input_bytes, const unsigned int input_size, 
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, Weak::MD5>::Verifier verifier(public_key);
@@ -656,7 +902,6 @@ void rsa_pss_sha1_sign(const byte* input_bytes, const unsigned int input_size, c
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -671,7 +916,6 @@ void rsa_pss_sha1_verify(const byte* input_bytes, const unsigned int input_size,
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, SHA1>::Verifier verifier(public_key);
@@ -684,7 +928,6 @@ void rsa_pss_sha224_sign(const byte* input_bytes, const unsigned int input_size,
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -699,7 +942,6 @@ void rsa_pss_sha224_verify(const byte* input_bytes, const unsigned int input_siz
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, SHA224>::Verifier verifier(public_key);
@@ -712,7 +954,6 @@ void rsa_pss_sha256_sign(const byte* input_bytes, const unsigned int input_size,
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -727,7 +968,6 @@ void rsa_pss_sha256_verify(const byte* input_bytes, const unsigned int input_siz
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, SHA256>::Verifier verifier(public_key);
@@ -740,7 +980,6 @@ void rsa_pss_sha384_sign(const byte* input_bytes, const unsigned int input_size,
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -755,7 +994,6 @@ void rsa_pss_sha384_verify(const byte* input_bytes, const unsigned int input_siz
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, SHA384>::Verifier verifier(public_key);
@@ -768,7 +1006,6 @@ void rsa_pss_sha512_sign(const byte* input_bytes, const unsigned int input_size,
     RSA::PrivateKey private_key;
 
     buffer.Put(private_key_bytes, private_key_size);
-    buffer.MessageEnd();
     private_key.BERDecode(buffer);
 
     AutoSeededRandomPool rng;
@@ -783,7 +1020,6 @@ void rsa_pss_sha512_verify(const byte* input_bytes, const unsigned int input_siz
     RSA::PublicKey public_key;
 
     buffer.Put(public_key_bytes, public_key_size);
-    buffer.MessageEnd();
     public_key.BERDecode(buffer);
 
     RSASS<PKCS1v15, SHA512>::Verifier verifier(public_key);
