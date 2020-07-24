@@ -299,8 +299,9 @@ extern "C" CRYPTOPP_EXPORT void rsa_export_public_key(const CryptoPP::byte* priv
  * @param private_key_size - pointer to unsigned integer to store 'private_key_bytes' size
  * @param public_key_bytes - pointer to null byte array to store public key
  * @param public_key_size - pointer to unsigned integer to store 'public_key_bytes' size
+ * @param exponent - define key exponent value, default value = 65537
  */
-extern "C" CRYPTOPP_EXPORT void rsa_key_pair(const unsigned int key_size, CryptoPP::byte** private_key_bytes, unsigned int* private_key_size, CryptoPP::byte** public_key_bytes, unsigned int* public_key_size);
+extern "C" CRYPTOPP_EXPORT void rsa_key_pair(const unsigned int key_size, CryptoPP::byte** private_key_bytes, unsigned int* private_key_size, CryptoPP::byte** public_key_bytes, unsigned int* public_key_size, const unsigned int exponent);
 
 /**
  * Decrypt data with rsa no padding
