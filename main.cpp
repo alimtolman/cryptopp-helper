@@ -303,13 +303,14 @@ void rsa_export_public_key(const byte* private_key_bytes, const unsigned int pri
     buffer.Get(*public_key_bytes, *public_key_size);
 }
 
-void rsa_key_pair(const unsigned int key_size, byte** private_key_bytes, unsigned int* private_key_size, byte** public_key_bytes, unsigned int* public_key_size) {
+void rsa_key_pair(const unsigned int key_size, byte** private_key_bytes, unsigned int* private_key_size, byte** public_key_bytes, unsigned int* public_key_size, const unsigned int exponent = 65537) {
     ByteQueue buffer;
     AutoSeededRandomPool rng;
     RSA::PrivateKey private_key;
     RSA::PublicKey public_key;
+    AlgorithmParameters params = MakeParameters(Name::KeySize(), (int)key_size)(Name::PublicExponent(), (int)exponent);
 
-    private_key.GenerateRandomWithKeySize(rng, key_size);
+    private_key.GenerateRandom(rng, params);
     public_key.Initialize(private_key.GetModulus(), private_key.GetPublicExponent());
 
     private_key.DEREncode(buffer);
