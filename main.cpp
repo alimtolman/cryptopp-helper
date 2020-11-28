@@ -4,6 +4,7 @@
 #include "aes.h"
 #include "dh.h"
 #include "filters.h"
+#include "gcm.h"
 #include "md2.h"
 #include "md4.h"
 #include "md5.h"
@@ -108,6 +109,38 @@ void aes_ecb_encrypt(const byte* input_bytes, const unsigned int input_size, con
 
     ECB_Mode<AES>::Encryption engine(key_bytes, key_size);
     StreamTransformationFilter stream(engine, new StringSink(output_str), padding);
+    stream.Put(input_bytes, input_size);
+    stream.MessageEnd();
+
+    *output_size = static_cast<unsigned int>(output_str.size());
+    *output_bytes = new byte[output_str.size()];
+
+    for (unsigned int i = 0; i < output_str.size(); ++i)
+        (*output_bytes)[i] = static_cast<byte>(output_str.at(i));
+}
+
+void aes_gcm_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const unsigned int key_size, const byte* iv_bytes, const unsigned int iv_size, byte** output_bytes, unsigned int* output_size) {
+    std::string output_str = "";
+
+    GCM<AES>::Decryption engine;
+    engine.SetKeyWithIV(key_bytes, key_size, iv_bytes, iv_size);
+    AuthenticatedEncryptionFilter stream(engine, new StringSink(output_str));
+    stream.Put(input_bytes, input_size);
+    stream.MessageEnd();
+
+    *output_size = static_cast<unsigned int>(output_str.size());
+    *output_bytes = new byte[output_str.size()];
+
+    for (unsigned int i = 0; i < output_str.size(); ++i)
+        (*output_bytes)[i] = static_cast<byte>(output_str.at(i));
+}
+
+void aes_gcm_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const unsigned int key_size, const byte* iv_bytes, const unsigned int iv_size, byte** output_bytes, unsigned int* output_size) {
+    std::string output_str = "";
+
+    GCM<AES>::Encryption engine;
+    engine.SetKeyWithIV(key_bytes, key_size, iv_bytes, iv_size);
+    AuthenticatedEncryptionFilter stream(engine, new StringSink(output_str));
     stream.Put(input_bytes, input_size);
     stream.MessageEnd();
 
