@@ -110,6 +110,38 @@ extern "C" CRYPTOPP_EXPORT void aes_ecb_decrypt(const CryptoPP::byte* input_byte
  */
 extern "C" CRYPTOPP_EXPORT void aes_ecb_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, CryptoPP::byte** output_bytes, unsigned int* output_size, const bool zeros_padding);
 
+/**
+ * Decrypt data with aes-gcm
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param input_bytes - byte array of cipher data
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param iv_size - size of 'iv_bytes'
+ * @param output_bytes - pointer to null byte array to store decrypted data
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void aes_gcm_decrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, const unsigned int iv_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * Encrypt data with aes-gcm
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param input_bytes - byte array of data to encrypt
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param iv_size - size of 'iv_bytes'
+ * @param output_bytes - pointer to null byte array to store cipher data
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void aes_gcm_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, const unsigned int iv_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
 #pragma endregion
 
 #pragma region big integer
