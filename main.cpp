@@ -1063,6 +1063,24 @@ void rsa_pss_sha512_verify(const byte* input_bytes, const unsigned int input_siz
 
 #pragma endregion
 
+#pragma region salsa20
+
+void salsa20_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const unsigned int key_size, const byte* iv_bytes, byte** output_bytes) {
+    Salsa20::Decryption engine;
+
+    engine.SetKeyWithIV(key_bytes, key_size, iv_bytes, Salsa20::IV_LENGTH);
+    engine.ProcessData(*output_bytes, input_bytes, input_size);
+}
+
+void salsa20_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const unsigned int key_size, const byte* iv_bytes, byte** output_bytes) {
+    Salsa20::Encryption engine;
+
+    engine.SetKeyWithIV(key_bytes, key_size, iv_bytes, Salsa20::IV_LENGTH);
+    engine.ProcessData(*output_bytes, input_bytes, input_size);
+}
+
+#pragma endregion
+
 #pragma region xsalsa20
 
 void xsalsa20_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const byte* iv_bytes, byte** output_bytes) {
