@@ -778,6 +778,42 @@ extern "C" CRYPTOPP_EXPORT void rsa_pss_sha512_verify(const CryptoPP::byte* inpu
 
 #pragma endregion
 
+#pragma region salsa20
+
+/**
+ * Decrypt data with salsa20
+ *
+ * @note Caller MUST allocate for 'key_bytes' 16 or 32 bytes
+ * @note Caller MUST allocate for 'iv_bytes' 8 bytes
+ * @note Caller MUST allocate 'output_bytes' with size 'input_size'
+ *
+ * @param input_bytes - byte array of cipher data
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param output_bytes - pointer to byte array with defined size to store decrypted data
+ */
+extern "C" CRYPTOPP_EXPORT void salsa20_decrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, CryptoPP::byte** output_bytes);
+
+/**
+ * Encrypt data with salsa20
+ *
+ * @note Caller MUST allocate for 'key_bytes' 16 or 32 bytes
+ * @note Caller MUST allocate for 'iv_bytes' 8 bytes
+ * @note Caller MUST allocate 'output_bytes' with size 'input_size'
+ *
+ * @param input_bytes - byte array of data to encrypt
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param output_bytes - pointer to byte array with defined size to store cipher data
+ */
+extern "C" CRYPTOPP_EXPORT void salsa20_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, CryptoPP::byte** output_bytes);
+
+#pragma endregion
+
 #pragma region xsalsa20
 
 /**
