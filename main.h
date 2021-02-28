@@ -161,6 +161,42 @@ extern "C" CRYPTOPP_EXPORT void big_integer_mod_pow(const char* value_hex, const
 
 #pragma endregion
 
+#pragma region chacha20
+
+/**
+ * Decrypt data with chacha20
+ *
+ * @note Caller MUST allocate for 'key_bytes' 16 or 32 bytes
+ * @note Caller MUST allocate for 'iv_bytes' 8 bytes
+ * @note Caller MUST allocate 'output_bytes' with size 'input_size'
+ *
+ * @param input_bytes - byte array of cipher data
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param output_bytes - pointer to byte array with defined size to store decrypted data
+ */
+extern "C" CRYPTOPP_EXPORT void chacha20_decrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, CryptoPP::byte** output_bytes);
+
+/**
+ * Encrypt data with chacha20
+ *
+ * @note Caller MUST allocate for 'key_bytes' 16 or 32 bytes
+ * @note Caller MUST allocate for 'iv_bytes' 8 bytes
+ * @note Caller MUST allocate 'output_bytes' with size 'input_size'
+ *
+ * @param input_bytes - byte array of data to encrypt
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param output_bytes - pointer to byte array with defined size to store cipher data
+ */
+extern "C" CRYPTOPP_EXPORT void chacha20_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, CryptoPP::byte** output_bytes);
+
+#pragma endregion
+
 #pragma region diffie-hellman
 
 /**
@@ -191,6 +227,90 @@ extern "C" CRYPTOPP_EXPORT void dh_key_pair(const char* p_hex, const char* g_hex
  * @param shared_key_size - pointer to unsigned integer to store 'shared_key_bytes' size
  */
 extern "C" CRYPTOPP_EXPORT void dh_shared_key(const char* p_hex, const char* g_hex, const CryptoPP::byte* private_key_bytes, const CryptoPP::byte* other_public_key_bytes, CryptoPP::byte** shared_key_bytes, unsigned int* shared_key_size);
+
+#pragma endregion
+
+#pragma region ecdsa
+
+/**
+ * Export public key from private key
+ *
+ * @note Caller MUST delete 'public_key_bytes' with helper function 'delete_byte_array'
+ *
+ * @param private_key_bytes - private key byte array
+ * @param private_key_size - size of 'private_key_bytes'
+ * @param public_key_bytes - pointer to null byte array to store public key
+ * @param public_key_size - pointer to unsigned integer to store 'public_key_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void ecdsa_export_public_key(const CryptoPP::byte* private_key_bytes, const unsigned int private_key_size, CryptoPP::byte** public_key_bytes, unsigned int* public_key_size);
+
+/**
+ * Generate ecdsa key pair for defined elliptic curve
+ *
+ * @note Caller MUST delete 'private_key_bytes' with helper function 'delete_byte_array'
+ * @note Caller MUST delete 'public_key_bytes' with helper function 'delete_byte_array'
+ *
+ * @param elliptic_curve - known elliptic curve, where 0 is 'secp256k1', 1 is 'secp256r1', 2 is 'secp384r1', 3 is 'secp521r1'
+ * @param private_key_bytes - pointer to null byte array to store private key
+ * @param private_key_size - pointer to unsigned integer to store 'private_key_bytes' size
+ * @param public_key_bytes - pointer to null byte array to store public key
+ * @param public_key_size - pointer to unsigned integer to store 'public_key_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void ecdsa_key_pair(const CryptoPP::byte elliptic_curve, CryptoPP::byte** private_key_bytes, unsigned int* private_key_size, CryptoPP::byte** public_key_bytes, unsigned int* public_key_size);
+
+/**
+ * Generate signature of data with ecdsa sha1
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param input_bytes - byte array of data to sign
+ * @param input_size - size of 'input_bytes'
+ * @param private_key_bytes - private key byte array
+ * @param private_key_size - size of 'private_key_bytes'
+ * @param output_bytes - pointer to null byte array to store signature data
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void ecdsa_sha1_sign(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* private_key_bytes, const unsigned int private_key_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * Verify signature of data with ecdsa sha1
+ *
+ * @param input_bytes - byte array of data
+ * @param input_size - size of 'input_bytes'
+ * @param signature_bytes - byte array of signaturet
+ * @param signature_size - size of 'signature_bytes'
+ * @param public_key_bytes - public key byte array
+ * @param public_key_size - size of 'public_key_bytes'
+ * @param result - pointer to boolean to store result
+ */
+extern "C" CRYPTOPP_EXPORT void ecdsa_sha1_verify(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* signature_bytes, const unsigned int signature_size, const CryptoPP::byte* public_key_bytes, const unsigned int public_key_size, bool* result);
+
+/**
+ * Generate signature of data with ecdsa sha256
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param input_bytes - byte array of data to sign
+ * @param input_size - size of 'input_bytes'
+ * @param private_key_bytes - private key byte array
+ * @param private_key_size - size of 'private_key_bytes'
+ * @param output_bytes - pointer to null byte array to store signature data
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void ecdsa_sha256_sign(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* private_key_bytes, const unsigned int private_key_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * Verify signature of data with ecdsa sha256
+ *
+ * @param input_bytes - byte array of data
+ * @param input_size - size of 'input_bytes'
+ * @param signature_bytes - byte array of signaturet
+ * @param signature_size - size of 'signature_bytes'
+ * @param public_key_bytes - public key byte array
+ * @param public_key_size - size of 'public_key_bytes'
+ * @param result - pointer to boolean to store result
+ */
+extern "C" CRYPTOPP_EXPORT void ecdsa_sha256_verify(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* signature_bytes, const unsigned int signature_size, const CryptoPP::byte* public_key_bytes, const unsigned int public_key_size, bool* result);
 
 #pragma endregion
 
@@ -281,7 +401,7 @@ extern "C" CRYPTOPP_EXPORT void pbkdf2_hmac_sha256(const CryptoPP::byte* passwor
 #pragma region rsa
 
 /**
- * Decrypt data with rsa pkcs1 padding
+ * Decrypt data with rsa ecb pkcs1 padding
  *
  * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
  *
@@ -292,10 +412,10 @@ extern "C" CRYPTOPP_EXPORT void pbkdf2_hmac_sha256(const CryptoPP::byte* passwor
  * @param output_bytes - pointer to null byte array to store decrypted data
  * @param output_size - pointer to unsigned integer to store 'output_bytes' size
  */
-extern "C" CRYPTOPP_EXPORT void rsa_decrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* private_key_bytes, const unsigned int private_key_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
+extern "C" CRYPTOPP_EXPORT void rsa_ecb_decrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* private_key_bytes, const unsigned int private_key_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
 
 /**
- * Encrypt data with rsa pkcs1 padding
+ * Encrypt data with rsa ecb pkcs1 padding
  *
  * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
  *
@@ -306,7 +426,7 @@ extern "C" CRYPTOPP_EXPORT void rsa_decrypt(const CryptoPP::byte* input_bytes, c
  * @param output_bytes - pointer to null byte array to store cipher data
  * @param output_size - pointer to unsigned integer to store 'output_bytes' size
  */
-extern "C" CRYPTOPP_EXPORT void rsa_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* public_key_bytes, const unsigned int public_key_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
+extern "C" CRYPTOPP_EXPORT void rsa_ecb_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* public_key_bytes, const unsigned int public_key_size, CryptoPP::byte** output_bytes, unsigned int* output_size);
 
 /**
  * Export public key from private key
