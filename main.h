@@ -396,6 +396,21 @@ extern "C" CRYPTOPP_EXPORT void pbkdf2_hmac_sha1(const CryptoPP::byte* password_
  */
 extern "C" CRYPTOPP_EXPORT void pbkdf2_hmac_sha256(const CryptoPP::byte* password_bytes, const unsigned int password_size, const CryptoPP::byte* salt_bytes, const unsigned int salt_size, const unsigned int iterations_count, CryptoPP::byte** output_bytes, const unsigned int output_size);
 
+/**
+ * Generate byte array for defined size
+ *
+ * @note Caller MUST allocate 'output_bytes' with size 'output_size'
+ *
+ * @param password_bytes - password byte array
+ * @param password_size - size of 'password_bytes'
+ * @param salt_bytes - salt byte array
+ * @param salt_size - size of 'salt_bytes'
+ * @param iterations_count - iterations count
+ * @param output_bytes - pointer to byte array with defined size
+ * @param output_size - size of 'output_bytes'
+ */
+extern "C" CRYPTOPP_EXPORT void pbkdf2_hmac_sha512(const CryptoPP::byte* password_bytes, const unsigned int password_size, const CryptoPP::byte* salt_bytes, const unsigned int salt_size, const unsigned int iterations_count, CryptoPP::byte** output_bytes, const unsigned int output_size);
+
 #pragma endregion
 
 #pragma region rsa
