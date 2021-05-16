@@ -378,6 +378,12 @@ void pbkdf2_hmac_sha256(const byte* password_bytes, const unsigned int password_
     pbkdf2.DeriveKey(*output_bytes, output_size, 0, password_bytes, password_size, salt_bytes, salt_size, iterations_count);
 }
 
+void pbkdf2_hmac_sha512(const byte* password_bytes, const unsigned int password_size, const byte* salt_bytes, const unsigned int salt_size, const unsigned int iterations_count, byte** output_bytes, const unsigned int output_size) {
+    PKCS5_PBKDF2_HMAC<SHA512> pbkdf2;
+
+    pbkdf2.DeriveKey(*output_bytes, output_size, 0, password_bytes, password_size, salt_bytes, salt_size, iterations_count);
+}
+
 #pragma endregion
 
 #pragma region rsa
