@@ -147,6 +147,30 @@ extern "C" CRYPTOPP_EXPORT void aes_gcm_encrypt(const CryptoPP::byte* input_byte
 #pragma region big integer
 
 /**
+ * result = value_1 + value_2
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param value_1_hex - value in hex format (e.g. "0x01020304...")
+ * @param value_2_hex - exponent in hex format (e.g. "0x01020304...")
+ * @param output_bytes - pointer to null byte array to store result
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void big_integer_add(const char* value_1_hex, const char* value_2_hex, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * result = value_1 % value_2
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param value_1_hex - value in hex format (e.g. "0x01020304...")
+ * @param value_2_hex - exponent in hex format (e.g. "0x01020304...")
+ * @param output_bytes - pointer to null byte array to store result
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void big_integer_mod(const char* value_1_hex, const char* value_2_hex, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
  * result = (value ^ exponent) % modulus
  *
  * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
@@ -158,6 +182,30 @@ extern "C" CRYPTOPP_EXPORT void aes_gcm_encrypt(const CryptoPP::byte* input_byte
  * @param output_size - pointer to unsigned integer to store 'output_bytes' size
  */
 extern "C" CRYPTOPP_EXPORT void big_integer_mod_pow(const char* value_hex, const char* exponent_hex, const char* modulus_hex, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * result = value_1 * value_2
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param value_1_hex - value in hex format (e.g. "0x01020304...")
+ * @param value_2_hex - exponent in hex format (e.g. "0x01020304...")
+ * @param output_bytes - pointer to null byte array to store result
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void big_integer_multiply(const char* value_1_hex, const char* value_2_hex, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * result = value_1 - value_2
+ *
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param value_1_hex - value in hex format (e.g. "0x01020304...")
+ * @param value_2_hex - exponent in hex format (e.g. "0x01020304...")
+ * @param output_bytes - pointer to null byte array to store result
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void big_integer_subtract(const char* value_1_hex, const char* value_2_hex, CryptoPP::byte** output_bytes, unsigned int* output_size);
 
 #pragma endregion
 
