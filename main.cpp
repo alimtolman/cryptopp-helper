@@ -159,6 +159,34 @@ void aes_gcm_encrypt(const byte* input_bytes, const unsigned int input_size, con
 
 #pragma region big integer
 
+void big_integer_add(const char* value_1_hex, const char* value_2_hex, byte** output_bytes, unsigned int* output_size) {
+    ByteQueue buffer;
+    Integer value_1(value_1_hex);
+    Integer value_2(value_2_hex);
+    Integer result = value_1 + value_2;
+
+    result.Encode(buffer, result.ByteCount());
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
+}
+
+void big_integer_mod(const char* value_1_hex, const char* value_2_hex, byte** output_bytes, unsigned int* output_size) {
+    ByteQueue buffer;
+    Integer value_1(value_1_hex);
+    Integer value_2(value_2_hex);
+    Integer result = value_1 % value_2;
+
+    result.Encode(buffer, result.ByteCount());
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
+}
+
 void big_integer_mod_pow(const char* value_hex, const char* exponent_hex, const char* modulus_hex, byte** output_bytes, unsigned int* output_size) {
     ByteQueue buffer;
     Integer value(value_hex);
@@ -175,6 +203,34 @@ void big_integer_mod_pow(const char* value_hex, const char* exponent_hex, const 
         value = (value * value) % modulus;
         exponent >>= 1;
     }
+
+    result.Encode(buffer, result.ByteCount());
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
+}
+
+void big_integer_multiply(const char* value_1_hex, const char* value_2_hex, byte** output_bytes, unsigned int* output_size) {
+    ByteQueue buffer;
+    Integer value_1(value_1_hex);
+    Integer value_2(value_2_hex);
+    Integer result = value_1 * value_2;
+
+    result.Encode(buffer, result.ByteCount());
+
+    *output_size = static_cast<unsigned int>(buffer.TotalBytesRetrievable());
+    *output_bytes = new byte[*output_size];
+
+    buffer.Get(*output_bytes, *output_size);
+}
+
+void big_integer_subtract(const char* value_1_hex, const char* value_2_hex, byte** output_bytes, unsigned int* output_size) {
+    ByteQueue buffer;
+    Integer value_1(value_1_hex);
+    Integer value_2(value_2_hex);
+    Integer result = value_1 - value_2;
 
     result.Encode(buffer, result.ByteCount());
 
