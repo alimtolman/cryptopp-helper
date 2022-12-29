@@ -278,6 +278,37 @@ extern "C" CRYPTOPP_EXPORT void dh_shared_key(const char* p_hex, const char* g_h
 
 #pragma endregion
 
+#pragma region ecdh
+
+/**
+ * Generate public and private keys
+ *
+ * @note Caller MUST delete 'private_key_bytes' with helper function 'delete_byte_array'
+ * @note Caller MUST delete 'public_key_bytes' with helper function 'delete_byte_array'
+ *
+ * @param elliptic_curve - known elliptic curve, where 0 is 'secp256k1', 1 is 'secp256r1', 2 is 'secp384r1', 3 is 'secp521r1'
+ * @param private_key_bytes - pointer to null byte array to store private key
+ * @param private_key_size - pointer to unsigned integer to store 'private_key_bytes' size
+ * @param public_key_bytes - pointer to null byte array to store public key
+ * @param public_key_size - pointer to unsigned integer to store 'public_key_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void ecdh_key_pair(const CryptoPP::byte elliptic_curve, CryptoPP::byte** private_key_bytes, unsigned int* private_key_size, CryptoPP::byte** public_key_bytes, unsigned int* public_key_size);
+
+/**
+ * Generate shared key
+ *
+ * @note Caller MUST delete 'shared_key_bytes' with helper function 'delete_byte_array'
+ *
+ * @param elliptic_curve - known elliptic curve, where 0 is 'secp256k1', 1 is 'secp256r1', 2 is 'secp384r1', 3 is 'secp521r1'
+ * @param private_key_bytes - private key byte array
+ * @param other_public_key_bytes - other public key byte array
+ * @param shared_key_bytes - pointer to null byte array to store shared key
+ * @param shared_key_size - pointer to unsigned integer to store 'shared_key_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void ecdh_shared_key(const CryptoPP::byte elliptic_curve, const CryptoPP::byte* private_key_bytes, const CryptoPP::byte* other_public_key_bytes, CryptoPP::byte** shared_key_bytes, unsigned int* shared_key_size);
+
+#pragma endregion
+
 #pragma region ecdsa
 
 /**
