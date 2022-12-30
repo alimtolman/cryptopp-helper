@@ -296,19 +296,22 @@ void dh_shared_key(const char* p_hex, const char* g_hex, const byte* private_key
 #pragma region ecdh
 
 void ecdh_key_pair(const byte elliptic_curve, byte** private_key_bytes, unsigned int* private_key_size, byte** public_key_bytes, unsigned int* public_key_size) {
-    ByteQueue buffer;
     AutoSeededRandomPool rng;
     OID oid;
 
     switch (elliptic_curve) {
     case 1:
         oid = ASN1::secp256r1();
+        break;
     case 2:
         oid = ASN1::secp384r1();
+        break;
     case 3:
         oid = ASN1::secp521r1();
+        break;
     default:
         oid = ASN1::secp256k1();
+        break;
     }
 
     ECDH<ECP>::Domain ecdh(oid);
@@ -322,19 +325,22 @@ void ecdh_key_pair(const byte elliptic_curve, byte** private_key_bytes, unsigned
 }
 
 void ecdh_shared_key(const byte elliptic_curve, const byte* private_key_bytes, const byte* other_public_key_bytes, byte** shared_key_bytes, unsigned int* shared_key_size) {
-    ByteQueue buffer;
     AutoSeededRandomPool rng;
     OID oid;
 
     switch (elliptic_curve) {
     case 1:
         oid = ASN1::secp256r1();
+        break;
     case 2:
         oid = ASN1::secp384r1();
+        break;
     case 3:
         oid = ASN1::secp521r1();
+        break;
     default:
         oid = ASN1::secp256k1();
+        break;
     }
 
     ECDH<ECP>::Domain ecdh(oid);
@@ -378,12 +384,16 @@ void ecdsa_key_pair(const byte elliptic_curve, byte** private_key_bytes, unsigne
     switch (elliptic_curve) {
     case 1:
         oid = ASN1::secp256r1();
+        break;
     case 2:
         oid = ASN1::secp384r1();
+        break;
     case 3:
         oid = ASN1::secp521r1();
+        break;
     default:
         oid = ASN1::secp256k1();
+        break;
     }
 
     private_key.Initialize(rng, oid);
