@@ -209,6 +209,42 @@ extern "C" CRYPTOPP_EXPORT void big_integer_subtract(const char* value_1_hex, co
 
 #pragma endregion
 
+#pragma region blowfish
+
+/**
+ * Decrypt data with blowfish-cbc
+ *
+ * @note Caller MUST allocate for 'iv_bytes' 16 bytes
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param input_bytes - byte array of cipher data
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param output_bytes - pointer to null byte array to store decrypted data
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void blowfish_cbc_decrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+/**
+ * Encrypt data with blowfish-cbc
+ *
+ * @note Caller MUST allocate for 'iv_bytes' 16 bytes
+ * @note Caller MUST delete 'output_bytes' with helper function 'delete_byte_array'
+ *
+ * @param input_bytes - byte array of data to encrypt
+ * @param input_size - size of 'input_bytes'
+ * @param key_bytes - key byte array
+ * @param key_size - size of 'key_bytes'
+ * @param iv_bytes - initialization vector byte array
+ * @param output_bytes - pointer to null byte array to store cipher data
+ * @param output_size - pointer to unsigned integer to store 'output_bytes' size
+ */
+extern "C" CRYPTOPP_EXPORT void blowfish_cbc_encrypt(const CryptoPP::byte* input_bytes, const unsigned int input_size, const CryptoPP::byte* key_bytes, const unsigned int key_size, const CryptoPP::byte* iv_bytes, CryptoPP::byte** output_bytes, unsigned int* output_size);
+
+#pragma endregion
+
 #pragma region chacha20
 
 /**
