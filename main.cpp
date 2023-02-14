@@ -2,6 +2,7 @@
 
 #pragma warning(push, 0) 
 #include "aes.h"
+#include "blowfish.h"
 #include "chacha.h"
 #include "dh.h"
 #include "ecp.h"
@@ -238,6 +239,38 @@ void big_integer_subtract(const char* value_1_hex, const char* value_2_hex, byte
     *output_bytes = new byte[*output_size];
 
     buffer.Get(*output_bytes, *output_size);
+}
+
+#pragma endregion
+
+#pragma region blowfish
+
+void blowfish_cbc_decrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const unsigned int key_size, const byte* iv_bytes, byte** output_bytes, unsigned int* output_size) {
+    std::string output_str = "";
+    CBC_Mode<Blowfish>::Decryption engine(key_bytes, key_size, iv_bytes);
+    StreamTransformationFilter stream(engine, new StringSink(output_str));
+    stream.Put(input_bytes, input_size);
+    stream.MessageEnd();
+
+    *output_size = static_cast<unsigned int>(output_str.size());
+    *output_bytes = new byte[output_str.size()];
+
+    for (unsigned int i = 0; i < output_str.size(); ++i)
+        (*output_bytes)[i] = static_cast<byte>(output_str.at(i));
+}
+
+void blowfish_cbc_encrypt(const byte* input_bytes, const unsigned int input_size, const byte* key_bytes, const unsigned int key_size, const byte* iv_bytes, byte** output_bytes, unsigned int* output_size) {
+    std::string output_str = "";
+    CBC_Mode<Blowfish>::Encryption engine(key_bytes, key_size, iv_bytes);
+    StreamTransformationFilter stream(engine, new StringSink(output_str));
+    stream.Put(input_bytes, input_size);
+    stream.MessageEnd();
+
+    *output_size = static_cast<unsigned int>(output_str.size());
+    *output_bytes = new byte[output_str.size()];
+
+    for (unsigned int i = 0; i < output_str.size(); ++i)
+        (*output_bytes)[i] = static_cast<byte>(output_str.at(i));
 }
 
 #pragma endregion
